@@ -1,0 +1,71 @@
+[
+  {
+    "name": "Friend",
+    "type": "personal_chat",
+    "id": 42,
+    "messages": [
+      {
+        "id": 1,
+        "date_unixtime": "1756000000",
+        "from": "Viktor",
+        "from_id": "u1",
+        "text": "Why does every simple plan become a rabbit hole?"
+      },
+      {
+        "id": 2,
+        "date_unixtime": "1756000015",
+        "from": "Friend",
+        "from_id": "u2",
+        "reply_to_message_id": 1,
+        "text": "Because apparently we have chosen chaos.",
+        "text_entities": [
+          {
+            "type": "plain",
+            "text": "Because apparently we have chosen chaos."
+          }
+        ],
+        "reactions": [
+          {
+            "type": "emoji",
+            "emoji": "😂",
+            "count": 1
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "date_unixtime": "1756000040",
+        "from": "Viktor",
+        "from_id": "u1",
+        "text": "This is becoming lore."
+      },
+      {
+        "id": 4,
+        "date_unixtime": "1756000070",
+        "from": "Friend",
+        "from_id": "u2",
+        "text": "Put this lore in the museum.",
+        "text_entities": [
+          {
+            "type": "plain",
+            "text": "Put this lore in the museum."
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "date_unixtime": "1756100000",
+        "from": "Viktor",
+        "from_id": "u1",
+        "text": "New day, same universe.",
+        "reactions": [
+          {
+            "type": "emoji",
+            "emoji": "❤",
+            "count": 1
+          }
+        ]
+      }
+    ]
+  }
+]

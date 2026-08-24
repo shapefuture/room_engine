@@ -1,0 +1,13 @@
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {compileTelegram} from '../packages/compiler/src/compile.mjs';
+import {bootCartridge,verifyCartridge} from '../packages/shared/src/runtime-core.mjs';
+import {encodeCanonicalMessages} from '../packages/shared/src/gcf.mjs';
+const root=path.resolve(fileURLToPath(new URL('..',import.meta.url)));
+const input=process.argv[2],jsonPath=input?path.resolve(input):path.join(root,'public/cartridge.json');
+if(input){if(!(await fs.stat(jsonPath).catch(()=>null)))throw new Error(`cartridge not found: ${jsonPath}`);} else if(!(await fs.stat(jsonPath).catch(()=>null))) throw new Error('public/cartridge.json is not generated; compile a real Telegram export before verification');
+const cartridge=JSON.parse(await fs.readFile(jsonPath,'utf8'));const gcfPath=jsonPath.replace(/\.json$/i,'.gcf');const gcf=await fs.readFile(gcfPath,'utf8');
+const fetchFile=async url=>url.endsWith('.gcf')?{ok:true,status:200,text:async()=>gcf,json:async()=>({})}:{ok:true,status:200,json:async()=>cartridge,text:async()=>JSON.stringify(cartridge)};
+const booted=await bootCartridge(fetchFile);await verifyCartridge(booted);console.log(`CARTRIDGE VERIFY: PASS (${booted.chat.message_count} messages, ${booted.tier0.discoveries.length} discoveries)`);

@@ -1,0 +1,18 @@
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {compileTelegram} from '../packages/compiler/src/compile.mjs';
+import {bootCartridge,verifyCartridge} from '../packages/shared/src/runtime-core.mjs';
+const root=path.resolve(fileURLToPath(new URL('..',import.meta.url)));
+const raw=JSON.parse(await fs.readFile(path.join(root,'data/demo/telegram.json'),'utf8'));
+const {cartridge}=compileTelegram(raw,{roles:{Viktor:'HIM',Friend:'HER'}});
+const tmp=await fs.mkdtemp(path.join(os.tmpdir(),'room-of-us-fixture-'));
+const jsonPath=path.join(tmp,'cartridge.json');
+await fs.writeFile(jsonPath,JSON.stringify(cartridge));
+await fs.writeFile(path.join(tmp,'cartridge.gcf'),(await import('../packages/shared/src/gcf.mjs')).encodeCanonicalMessages(cartridge.tier1.messages));
+const fetchFile=async url=>{const name=url.endsWith('.gcf')?'cartridge.gcf':'cartridge.json';const body=await fs.readFile(path.join(tmp,name),'utf8');return {ok:true,status:200,json:async()=>JSON.parse(body),text:async()=>body};};
+const booted=await bootCartridge(fetchFile);await verifyCartridge(booted);
+if(booted.tier0.third_mind.length===0)throw new Error('fixture produced no relational emergence candidate');
+console.log(`FIXTURE VERIFY: PASS (${booted.chat.message_count} messages, ${booted.chat.episode_count} episodes, ${booted.tier0.discoveries.length} discoveries)`);
+await fs.rm(tmp,{recursive:true,force:true});

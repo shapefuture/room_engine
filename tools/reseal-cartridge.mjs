@@ -1,0 +1,11 @@
+import fs from 'node:fs';
+import crypto from 'node:crypto';
+const input=process.argv[2]||'public/cartridge.json';
+const cartridge=JSON.parse(fs.readFileSync(input,'utf8'));
+const uniqueEvidence=new Set((cartridge.tier0?.discoveries??[]).flatMap(d=>d.evidence??[]));
+cartridge.integrity={...(cartridge.integrity??{}),evidence_records:uniqueEvidence.size,semantic_candidates:cartridge.tier0?.discoveries?.length??0};
+delete cartridge.integrity.content_manifest;
+const payload=structuredClone(cartridge);delete payload.integrity;
+cartridge.integrity.content_manifest=crypto.createHash('sha256').update(JSON.stringify(payload)).digest('hex');
+fs.writeFileSync(input,JSON.stringify(cartridge,null,2));
+console.log(`Resealed ${input}: evidence_records=${cartridge.integrity.evidence_records}, semantic_candidates=${cartridge.integrity.semantic_candidates}`);

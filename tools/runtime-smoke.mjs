@@ -1,0 +1,18 @@
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {compileTelegram} from '../packages/compiler/src/compile.mjs';
+import {bootCartridge,doorUnlocked,searchMessages,verifyCartridge} from '../packages/shared/src/runtime-core.mjs';
+import {tokens} from '../packages/shared/src/tokens.mjs';
+import {encodeCanonicalMessages} from '../packages/shared/src/gcf.mjs';
+const root=path.resolve(fileURLToPath(new URL('..',import.meta.url)));
+const raw=JSON.parse(await fs.readFile(path.join(root,'data/demo/telegram.json'),'utf8'));
+const {cartridge}=compileTelegram(raw,{roles:{Viktor:'HIM',Friend:'HER'}});
+const tmp=await fs.mkdtemp(path.join(os.tmpdir(),'room-of-us-runtime-'));
+await fs.writeFile(path.join(tmp,'cartridge.json'),JSON.stringify(cartridge));await fs.writeFile(path.join(tmp,'cartridge.gcf'),encodeCanonicalMessages(cartridge.tier1.messages));
+const fetchFile=async url=>{const name=url.endsWith('.gcf')?'cartridge.gcf':'cartridge.json';const body=await fs.readFile(path.join(tmp,name),'utf8');return {ok:true,status:200,json:async()=>JSON.parse(body),text:async()=>body};};
+const booted=await bootCartridge(fetchFile);await verifyCartridge(booted);
+const results=searchMessages(booted,booted.tier1.search.sample[0]?.text??'room',tokens);if(results.length<1)throw new Error('runtime search probe failed');
+const inventory=new Set(booted.tier0.discoveries.slice(0,3).map(d=>d.id));const gate=doorUnlocked(booted,inventory,true);if(gate&&!booted.tier0.discoveries.some(d=>d.type==='emergence'||d.type==='relationship'))throw new Error('semantic door invariant failed');
+await fs.rm(tmp,{recursive:true,force:true});console.log(`RUNTIME SMOKE: PASS — boot=${booted.chat.message_count} messages, search=${results.length}, semanticDoor=${gate}`);

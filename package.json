@@ -1,0 +1,28 @@
+{
+  "name": "room-of-us",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --config apps/room/vite.config.ts",
+    "build": "vite build --config apps/room/vite.config.ts",
+    "test": "node --test packages/compiler/test/*.test.mjs",
+    "typecheck": "tsc -p apps/room/tsconfig.json --noEmit",
+    "compile": "node packages/compiler/src/compile.mjs",
+    "benchmark": "node tools/benchmark.mjs 20000",
+    "enrich": "node tools/enrich-gemini.mjs --allow-external",
+    "embed": "python3 tools/embed_cpu.py",
+    "verify:cartridge": "node tools/verify-cartridge.mjs",
+    "verify:runtime": "node tools/runtime-smoke.mjs",
+    "verify:paths": "node tools/gauntlet-check.mjs",
+    "verify:build-preflight": "node tools/build-preflight.mjs",
+    "verify": "npm run typecheck && npm test && npm run verify:fixture && npm run verify:runtime && npm run verify:paths",
+    "compile:fixture": "node packages/compiler/src/compile.mjs data/demo/telegram.json /tmp/room-of-us-fixture/cartridge.json --role=Viktor=HIM --role=Friend=HER",
+    "verify:fixture": "node tools/verify-fixture.mjs"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0",
+    "vite": "8.2.2"
+  }
+}
