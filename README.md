@@ -4,10 +4,10 @@ A CPU-only, offline friendship archive rendered as one interactive 2D room.
 
 ## Architecture
 
-1. **Compiler** — Telegram JSON → canonical message model → episodes → evidence-backed deterministic candidates → local search/semantic indexes → cartridge.
-2. **GCF transport** — canonical messages are emitted as compact GCF and hard-verified against the cartridge at runtime.
+1. **Compiler** — Telegram JSON → canonical message model → episodes → evidence-backed deterministic candidates → local search/semantic indexes → cartridge. Worker-parallel on large archives (242k messages compile in ~50s), with two-pass TextTiling episode segmentation, gcfc-compatible `.idx.gcf`/`.map.gcf` sidecars (byte-range provenance + `gcf-pack-root-v1`), sharded `cartridge-parts/` output for chunked boot, and truncation recovery (`--strict` to refuse salvaged input).
+2. **GCF transport** — canonical messages are emitted as compact GCF and hard-verified against the cartridge at runtime. The sharded boot path verifies per-shard SHA-256 plus the same three manifests over the reassembled payload; the monolith path additionally cross-checks GCF↔JSON.
 3. **Room** — browser-native Canvas scene. No graph database, runtime backend, or runtime LLM is required.
-4. **Optional enrichment** — CPU embeddings and explicitly opt-in Gemini enrichment merge into the cartridge and reseal its content manifest.
+4. **Optional enrichment** — free-tier embeddings (SiliconFlow bge-m3 / NVIDIA NIM / Gemini `text-embedding-004` with rotation, or a local CPU fastembed/Ollama model — no torch required) merge into the cartridge and reseal its content manifest, and additionally produce **echo** discoveries (distant episodes that recur in meaning but not in words: cosine ≥ 0.55 ∧ Jaccard ≤ 0.22) plus Snowball-RU stemming and the Gries background-word model. See `tools/free_embeddings.py` (`npm run embed:mock` for an offline plumbing self-test, `npm run embed:test` to probe configured providers).
 
 ## Real archive usage
 

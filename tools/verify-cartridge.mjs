@@ -2,7 +2,6 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {compileTelegram} from '../packages/compiler/src/compile.mjs';
 import {bootCartridge,verifyCartridge} from '../packages/shared/src/runtime-core.mjs';
 import {encodeCanonicalMessages} from '../packages/shared/src/gcf.mjs';
 const root=path.resolve(fileURLToPath(new URL('..',import.meta.url)));

@@ -2,7 +2,7 @@ import fs from 'node:fs';
 const [, , input='public/cartridge.json', output=input] = process.argv;
 if(!process.env.GEMINI_API_KEY){console.error('Set GEMINI_API_KEY. External enrichment is opt-in.');process.exit(2);}
 if(!process.argv.includes('--allow-external')){console.error('Refusing external transmission without --allow-external.');process.exit(2);}
-const model=process.env.GEMINI_MODEL||'gemini-3.7-flash';
+const model=process.env.GEMINI_MODEL||'gemini-2.5-flash';
 const ALLOWED=new Set(['language','humour','curiosity','value','evolution','memory','lore','relationship','influence','contradiction','invariant','emergence']);
 const STATUS=new Set(['OBSERVED','DERIVED','INTERPRETED']);
 const c=JSON.parse(fs.readFileSync(input,'utf8'));

@@ -6,7 +6,7 @@ import {compileTelegram} from '../packages/compiler/src/compile.mjs';
 import {bootCartridge,verifyCartridge} from '../packages/shared/src/runtime-core.mjs';
 const root=path.resolve(fileURLToPath(new URL('..',import.meta.url)));
 const raw=JSON.parse(await fs.readFile(path.join(root,'data/demo/telegram.json'),'utf8'));
-const {cartridge}=compileTelegram(raw,{roles:{Viktor:'HIM',Friend:'HER'}});
+const {cartridge}=await compileTelegram(raw,{roles:{Viktor:'HIM',Friend:'HER'}});
 const tmp=await fs.mkdtemp(path.join(os.tmpdir(),'room-of-us-fixture-'));
 const jsonPath=path.join(tmp,'cartridge.json');
 await fs.writeFile(jsonPath,JSON.stringify(cartridge));

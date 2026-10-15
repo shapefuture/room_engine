@@ -4,3 +4,10 @@ dist/
 *.log
 coverage/
 *.tmp
+__pycache__/
+*.pyc
+public/cartridge.json
+public/cartridge.gcf
+public/cartridge-parts/
+public/cartridge.idx.gcf
+public/cartridge.map.gcf

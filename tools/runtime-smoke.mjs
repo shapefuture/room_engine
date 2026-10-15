@@ -8,7 +8,7 @@ import {tokens} from '../packages/shared/src/tokens.mjs';
 import {encodeCanonicalMessages} from '../packages/shared/src/gcf.mjs';
 const root=path.resolve(fileURLToPath(new URL('..',import.meta.url)));
 const raw=JSON.parse(await fs.readFile(path.join(root,'data/demo/telegram.json'),'utf8'));
-const {cartridge}=compileTelegram(raw,{roles:{Viktor:'HIM',Friend:'HER'}});
+const {cartridge}=await compileTelegram(raw,{roles:{Viktor:'HIM',Friend:'HER'}});
 const tmp=await fs.mkdtemp(path.join(os.tmpdir(),'room-of-us-runtime-'));
 await fs.writeFile(path.join(tmp,'cartridge.json'),JSON.stringify(cartridge));await fs.writeFile(path.join(tmp,'cartridge.gcf'),encodeCanonicalMessages(cartridge.tier1.messages));
 const fetchFile=async url=>{const name=url.endsWith('.gcf')?'cartridge.gcf':'cartridge.json';const body=await fs.readFile(path.join(tmp,name),'utf8');return {ok:true,status:200,json:async()=>JSON.parse(body),text:async()=>body};};
