@@ -15,6 +15,10 @@ import {verifyCartridge} from '../../shared/src/runtime-core.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const PY = process.env.PYTHON || 'python3';
+// The echo engine's pairwise matmuls need numpy; skip (with a reason) where the
+// interpreter lacks it rather than failing vacuously.
+let HAVE_NUMPY = true;
+try { execFileSync(PY, ['-c', 'import numpy'], {stdio: 'ignore'}); } catch { HAVE_NUMPY = false; }
 // tools/free_embeddings.py mock backend: h[:16] (16 bytes) then `base * 6`
 // (Python list repetition) => 96 floats. Overrides must match this width so the
 // evidence matmul (MV @ episode_vector) is dimensionally valid.
@@ -98,7 +102,8 @@ async function enrich(chat) {
 
 const echoesOf = c => c.tier0.discoveries.filter(d => d.type === 'echo');
 
-test('echo: distant episodes sharing a topic but not words produce an echo', async () => {
+test('echo: distant episodes sharing a topic but not words produce an echo', async (t) => {
+  if (!HAVE_NUMPY) return t.skip('numpy unavailable for the echo engine');
   const {cartridge} = await enrich(buildChat(corpus({targetGap: 10 * DAY, sameWords: false})));
   const eps = cartridge.tier1.episodes;
   assert.ok(eps.length >= 8, `expected >=8 episodes, got ${eps.length}`);
@@ -121,19 +126,22 @@ test('echo: distant episodes sharing a topic but not words produce an echo', asy
   await verifyCartridge(cartridge);
 });
 
-test('echo: adjacent episodes (gap < 5 days) never echo', async () => {
+test('echo: adjacent episodes (gap < 5 days) never echo', async (t) => {
+  if (!HAVE_NUMPY) return t.skip('numpy unavailable for the echo engine');
   const {cartridge} = await enrich(buildChat(corpus({targetGap: 20000, sameWords: false})));
   assert.equal(echoesOf(cartridge).length, 0);
   await verifyCartridge(cartridge);
 });
 
-test('echo: identical-word episodes (jaccard > 0.22) never echo', async () => {
+test('echo: identical-word episodes (jaccard > 0.22) never echo', async (t) => {
+  if (!HAVE_NUMPY) return t.skip('numpy unavailable for the echo engine');
   const {cartridge} = await enrich(buildChat(corpus({targetGap: 10 * DAY, sameWords: true})));
   assert.equal(echoesOf(cartridge).length, 0);
   await verifyCartridge(cartridge);
 });
 
-test('echo: deterministic echo blocks across runs', async () => {
+test('echo: deterministic echo blocks across runs', async (t) => {
+  if (!HAVE_NUMPY) return t.skip('numpy unavailable for the echo engine');
   const chat = buildChat(corpus({targetGap: 10 * DAY, sameWords: false}));
   const a = echoesOf((await enrich(chat)).cartridge);
   const b = echoesOf((await enrich(chat)).cartridge);

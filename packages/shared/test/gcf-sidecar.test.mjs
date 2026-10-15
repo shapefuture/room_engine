@@ -210,10 +210,13 @@ test('compareBytes sorts by unsigned UTF-8 byte order', () => {
 });
 
 // ---- 5. cross-implementation conformance with B's artifacts ---------------
+// Reference artifacts live outside this repo (personal data); tests skip when
+// absent. Point GCF_REF_DIR at a directory holding result.{idx,map}.gcf.
+const B = process.env.GCF_REF_DIR ?? '/Users/viktor/Downloads/kristina maskot/embed';
+const HAVE_B = fs.existsSync(B + '/result.idx.gcf') && fs.existsSync(B + '/result.map.gcf');
 
-const B = '/Users/viktor/Downloads/kristina maskot/embed';
-
-test('parseIndex reads B gcfc real result.idx.gcf', () => {
+test('parseIndex reads B gcfc real result.idx.gcf', (t) => {
+  if (!HAVE_B) return t.skip(`reference artifacts not present: ${B}`);
   const idx = parseIndex(fs.readFileSync(B + '/result.idx.gcf', 'utf8'));
   assert.equal(idx.stride, 64);
   assert.deepEqual(idx.sections[0], { name: 'messages', first: 0, count: 20400, offset: 810, t0: 1756197039, t1: 1759265407 });
@@ -221,7 +224,8 @@ test('parseIndex reads B gcfc real result.idx.gcf', () => {
   assert.equal(idx.anchors.length, 319);
 });
 
-test('parseMap reads B gcfc real result.map.gcf', () => {
+test('parseMap reads B gcfc real result.map.gcf', (t) => {
+  if (!HAVE_B) return t.skip(`reference artifacts not present: ${B}`);
   const map = parseMap(fs.readFileSync(B + '/result.map.gcf', 'utf8'));
   assert.equal(map.source.sha256, 'b23c6f07041ee657579414a0371f374d724e356dcb91411b1164b310f00e16e2');
   assert.equal(map.source.file, 'result.json');
